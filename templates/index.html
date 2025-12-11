@@ -64,7 +64,10 @@
         <hr>
     </div>
     <div style="text-align: left;">
-        <span id="sentCntDisplay" style="background-color: cornflowerblue; color:white">Sentences recorded: 0</span>
+        <span id="sentCntDisplay">Sentences recorded: 0</span>
+        <br>
+        <span id="durationDisplay">Total duration: 0</span>
+
     </div>
 
     <form id="uploadForm" enctype="multipart/form-data">
@@ -90,7 +93,9 @@
     <script>
         let sentences = [];
         let current = 0;
-
+        let startTime;
+        let stopTime;
+        let totalTime = 0;
         // load sentences from file on file upload
         document.getElementById('uploadForm').onsubmit = async function(e) {
             e.preventDefault();
@@ -143,7 +148,7 @@
         }
 
         let mediaRecorder, audioChunks = [];
-        document.getElementById('recordBtn').onclick = async function() {
+        document.getElementById('recordBtn').onclick = async function() {            
             let stream = await navigator.mediaDevices.getUserMedia({ audio: true });
             mediaRecorder = new MediaRecorder(stream);
             audioChunks = [];
@@ -160,12 +165,29 @@
                 document.getElementById('nextBtn').disabled = false;
             };
             mediaRecorder.start();
+            
+            startTime  = performance.now()
+
             document.getElementById('recordBtn').disabled = true;
             document.getElementById('stopBtn').disabled = false;
         };
+        function getFormattedTime(t) {
+            time = t/1000; //seconds
+            unit = "seconds"
+            if (time >= 60) {
+                time /= 60
+                unit = "minutes"
+            }
+            if (time >=60) {
+                time /= 60
+                unit = "hours"
+            }
+            return time.toFixed(2) + " " + unit
 
+        }
         document.getElementById('stopBtn').onclick = function() {
             mediaRecorder.stop();
+            stopTime = performance.now();
             document.getElementById('recordBtn').disabled = false;
             document.getElementById('stopBtn').disabled = true;
         };
@@ -185,6 +207,13 @@
             }
             var count_display = document.getElementById("sentCntDisplay");
             count_display.textContent = "Sentences recorded: " + current
+
+
+            clip_dur = stopTime - startTime;
+            totalTime += clip_dur
+            console.log(getFormattedTime(totalTime))
+            var dur_display = document.getElementById("durationDisplay");
+            dur_display.textContent = "Total duration: " + getFormattedTime(totalTime);
         };
 
         // Download handler

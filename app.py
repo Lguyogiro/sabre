@@ -6,11 +6,11 @@ It works as follows:
 """
 from flask import Flask, render_template, request, jsonify, send_file
 import os
-from werkzeug.utils import secure_filename
+import glob
 from zipfile import ZipFile
 from io import BytesIO
-import glob
 import hashlib
+
 
 app = Flask(__name__)
 UPLOAD_FOLDER = 'audio_files'
@@ -62,7 +62,7 @@ def upload_audio():
     with open(TSV_FILE, 'w', encoding='utf-8') as f:
         for fn, sent in mappings.items():
             f.write(f"{fn}\t{sent}\n")
-
+    
     return 'Audio received', 200
 
 @app.route('/download-recordings')
